@@ -1,0 +1,28 @@
+<div class="modal-header">
+  <h5 class="modal-title">Editar Cliente</h5>
+  <button type="button" class="btn-close" (click)="cancel()"></button>
+</div>
+<div class="modal-body">
+  <div class="mb-3">
+    <label class="form-label">Nombre</label>
+    <input type="text" class="form-control"
+           [ngModel]="form().nombre"
+           (ngModelChange)="form.update(c => ({ ...c, nombre: $event }))">
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Apellido</label>
+    <input type="text" class="form-control"
+           [ngModel]="form().apellido"
+           (ngModelChange)="form.update(c => ({ ...c, apellido: $event }))">
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Email</label>
+    <input type="email" class="form-control"
+           [ngModel]="form().email"
+           (ngModelChange)="form.update(c => ({ ...c, email: $event }))">
+  </div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-secondary" (click)="cancel()">Cancelar</button>
+  <button class="btn btn-primary" (click)="saveCliente()">Guardar</button>
+</div>
