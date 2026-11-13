@@ -1,54 +1,58 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Injectable, signal, computed } from '@angular/core';
+import { of } from 'rxjs';
 import { Cliente } from '../model/cliente';
 import { Region } from '../model/region';
 
 @Injectable({ providedIn: 'root' })
 export class ClienteService {
 
-  private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/v1/cliente-service/clientes';
+  private regionesMock: Region[] = [
+    { id: 1, nombre: 'Norteamérica' },
+    { id: 2, nombre: 'Sudamérica' },
+    { id: 3, nombre: 'Europa' }
+  ];
 
-  // Estado privado y modificable: solo el servicio puede escribirlo.
-  private _clientes = signal<Cliente[]>([]);
+  private _clientes = signal<Cliente[]>([
+    {
+      id: 1,
+      nombre: 'Juan',
+      apellido: 'Pérez',
+      email: 'juan@ejemplo.com',
+      createAt: new Date(),
+      region: { id: 2, nombre: 'Sudamérica' }
+    }
+  ]);
 
-  // Vista pública de solo lectura. Los componentes leen clientes()
-  // pero no pueden llamar .set() sobre ella.
   readonly clientes = this._clientes.asReadonly();
-
-  // Valor derivado: se recalcula solo cuando cambia la lista.
   readonly totalClientes = computed(() => this._clientes().length);
 
-  // ── Pedir todos los clientes y guardarlos en la señal ────────────────────
-  cargarClientes(): void {
-    this.http.get<Cliente[]>(this.apiUrl)
-      .subscribe(clientes => this._clientes.set(clientes));
-  }
+  cargarClientes(): void {}
 
-  // ── Pedir un cliente por su identificador ────────────────────────────────
   getCliente(id: number) {
-    return this.http.get<Cliente>(`${this.apiUrl}/${id}`);
+    const encontrado = this._clientes().find(c => c.id === id) || new Cliente();
+    return of(encontrado);
   }
 
-  // ── Crear ────────────────────────────────────────────────────────────────
   createCliente(cliente: Cliente) {
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.http.post<Cliente>(this.apiUrl, cliente, { headers });
+    cliente.id = this._clientes().length + 1;
+    cliente.createAt = new Date();
+    this._clientes.update(lista => [...lista, cliente]);
+    return of(cliente);
   }
 
-  // ── Actualizar ───────────────────────────────────────────────────────────
   updateCliente(cliente: Cliente) {
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.http.put<Cliente>(`${this.apiUrl}/${cliente.id}`, cliente, { headers });
+    this._clientes.update(lista =>
+      lista.map(c => (c.id === cliente.id ? { ...cliente } : c))
+    );
+    return of(cliente);
   }
 
-  // ── Eliminar ─────────────────────────────────────────────────────────────
   deleteCliente(id: number) {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    this._clientes.update(lista => lista.filter(c => c.id !== id));
+    return of(undefined);
   }
 
-  // ── Las regiones, para el formulario de creación ─────────────────────────
   getRegiones() {
-    return this.http.get<Region[]>(`${this.apiUrl}/regiones`);
+    return of(this.regionesMock);
   }
 }
