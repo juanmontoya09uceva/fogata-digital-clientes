@@ -1,4 +1,5 @@
 # FogataDigitalClientes
+<img width="1876" height="923" alt="Captura de pantalla 2026-11-12 212730" src="https://github.com/user-attachments/assets/5e9dd091-b3f5-4401-b236-aed87a85f611" />
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.5.
 
